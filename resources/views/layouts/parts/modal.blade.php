@@ -54,6 +54,24 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmModalBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     // Wait for jQuery to be available
     (function() {
@@ -112,52 +130,72 @@
 
             // Define show_small_modal function
             window.show_small_modal = function(url, header) {
+                if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+                    console.error('Bootstrap is not loaded');
+                    return;
+                }
                 $('#small-modal-content').html('<div style="padding:40px; text-align:center;"><img src="https://i.stack.imgur.com/FhHRx.gif"></div>');
                 $('#small-modal-title').html('Loading...');
-                $('#small_modal').modal({
+                const modalElement = document.getElementById('small_modal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
                     backdrop: 'static',
                     keyboard: false
                 });
-                $('#small_modal').modal('show');
+                modal.show();
                 call_ajax_view(url, '#small-modal-content');
                 $('#small-modal-title').html(header);
             };
 
             // Define show_ajax_modal function
             window.show_ajax_modal = function(url, header) {
+                if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+                    console.error('Bootstrap is not loaded');
+                    return;
+                }
                 $('#ajax-modal-content').html('<div style="padding:40px; text-align:center;"><img src="https://i.stack.imgur.com/FhHRx.gif"></div>');
                 $('#ajax-modal-title').html('Loading...');
-                $('#ajax_modal').modal({
+                const modalElement = document.getElementById('ajax_modal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
                     backdrop: 'static',
                     keyboard: false
                 });
-                $('#ajax_modal').modal('show');
+                modal.show();
                 call_ajax_view(url, '#ajax-modal-content');
                 $('#ajax-modal-title').html(header);
             };
 
             // Define show_large_modal function
             window.show_large_modal = function(url, header) {
+                if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+                    console.error('Bootstrap is not loaded');
+                    return;
+                }
                 $('#large-modal-content').html('<div style="padding:40px; text-align:center;"><img src="https://i.stack.imgur.com/FhHRx.gif"></div>');
                 $('#large-modal-title').html('Loading...');
-                $('#large_modal').modal({
+                const modalElement = document.getElementById('large_modal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
                     backdrop: 'static',
                     keyboard: false
                 });
-                $('#large_modal').modal('show');
+                modal.show();
                 call_ajax_view(url, '#large-modal-content');
                 $('#large-modal-title').html(header);
             };
 
             // Define show_full_modal function
             window.show_full_modal = function(url, header) {
+                if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+                    console.error('Bootstrap is not loaded');
+                    return;
+                }
                 $('#full-modal-content').html('<div style="padding:40px; text-align:center;"><img src="https://i.stack.imgur.com/FhHRx.gif"></div>');
                 $('#full-modal-title').html('Loading...');
-                $('#full_modal').modal({
+                const modalElement = document.getElementById('full_modal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
                     backdrop: 'static',
                     keyboard: false
                 });
-                $('#full_modal').modal('show');
+                modal.show();
                 call_ajax_view(url, '#full-modal-content');
                 $('#full-modal-title').html(header);
             };
@@ -241,47 +279,6 @@
                 }
             };
 
-            // Define delete_modal function
-            window.delete_modal = function(
-                delete_url,
-                message = 'Are you Sure ?',
-                message_description = 'Are you Sure You want to Delete this?',
-                button_text = 'Yes, Delete It!',
-                callback = null
-            ) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        html: '<div class="mt-3">' +
-                            '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' +
-                            '<div class="mt-4 pt-2 fs-15 mx-5">' +
-                            '<h4>' + message + '</h4>' +
-                            '<p class="text-muted mx-4 mb-0"> ' + message_description + '</p>' +
-                            '</div>' +
-                            '</div>',
-                        showCancelButton: true,
-                        confirmButtonClass: 'btn btn-primary w-xs me-2 mb-1',
-                        confirmButtonText: button_text,
-                        cancelButtonClass: 'btn btn-danger w-xs mb-1',
-                        buttonsStyling: false,
-                        showCloseButton: true,
-                        preConfirm: () => {
-                            if (callback && typeof callback === 'function') {
-                                callback();
-                            } else {
-                                window.location.href = delete_url;
-                            }
-                        }
-                    });
-                } else {
-                    if (confirm(message + ' ' + message_description)) {
-                        if (callback && typeof callback === 'function') {
-                            callback();
-                        } else {
-                            window.location.href = delete_url;
-                        }
-                    }
-                }
-            };
         }
         
         // Start initialization
@@ -291,4 +288,66 @@
             initModalFunctions();
         }
     })();
+
+    // Define delete_modal function globally (doesn't need jQuery)
+    window.delete_modal = function(delete_url, message = 'Are you sure?') {
+        // Wait for Swal to be available
+        function executeDelete() {
+            if (typeof Swal === 'undefined') {
+                setTimeout(executeDelete, 100);
+                return;
+            }
+
+            Swal.fire({
+                title: message,
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                preConfirm: () => {
+                    const params = new URLSearchParams();
+                    params.append('_method', 'DELETE');
+
+                    return fetch(delete_url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: params
+                    }).then(async response => {
+                        let data = {};
+                        try {
+                            data = await response.json();
+                        } catch (e) {
+                            // non-JSON response
+                        }
+                        if (!response.ok || (data && data.success === false)) {
+                            const msg = (data && (data.message || data.error)) || 'Delete failed.';
+                            throw new Error(msg);
+                        }
+                        return data;
+                    }).catch(error => {
+                        Swal.showValidationMessage(error.message || 'Delete failed.');
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Deleted!', 'Item has been deleted.', 'success').then(() => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+        
+        executeDelete();
+    };
 </script>

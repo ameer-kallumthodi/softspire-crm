@@ -20,5 +20,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \App\Models\Lead::observe(\App\Observers\LeadObserver::class);
+        
+        // Set default timezone to Indian Standard Time
+        date_default_timezone_set('Asia/Kolkata');
     }
 }

@@ -3,5 +3,7 @@
 <link href="{{ asset('assets/libs/chartist/dist/chartist.min.css') }}" rel="stylesheet">
 <link href="{{ asset('assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
 <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
+<!-- SweetAlert2 -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 @stack('styles')
 

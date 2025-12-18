@@ -16,6 +16,12 @@
                         <span class="hide-menu">Leads</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link sidebar-link" href="{{ route('admin.customers.index') }}" aria-expanded="false">
+                        <i data-feather="user-check" class="feather-icon"></i>
+                        <span class="hide-menu">Customers</span>
+                    </a>
+                </li>
                 <li class="list-divider"></li>
                 <li class="nav-small-cap"><span class="hide-menu">Master Data</span></li>
                 <li class="sidebar-item">

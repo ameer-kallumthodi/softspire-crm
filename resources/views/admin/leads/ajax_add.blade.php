@@ -18,7 +18,12 @@
         <div class="col-md-4">
             <div class="form-group mb-3">
                 <label>Country Code <span class="text-danger">*</span></label>
-                <input type="text" name="country_code" class="form-control" required>
+                <select name="country_code" class="form-control" required>
+                    <option value="">Select Country Code</option>
+                    @foreach($countryCodes as $code => $name)
+                    <option value="{{ $code }}">{{ $code }} - {{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="col-md-4">
@@ -91,31 +96,13 @@
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Date <span class="text-danger">*</span></label>
-                <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                <input type="date" name="date" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Followup Date</label>
-                <input type="date" name="followup_date" class="form-control">
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <div class="form-check">
-                    <input type="checkbox" name="is_meta" value="1" class="form-check-input" id="is_meta">
-                    <label class="form-check-label" for="is_meta">Is Meta</label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <div class="form-check">
-                    <input type="checkbox" name="is_converted" value="1" class="form-check-input" id="is_converted">
-                    <label class="form-check-label" for="is_converted">Is Converted</label>
-                </div>
+                <input type="date" name="followup_date" class="form-control" min="{{ now()->format('Y-m-d') }}">
             </div>
         </div>
     </div>

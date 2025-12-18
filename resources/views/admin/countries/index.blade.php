@@ -72,7 +72,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 let countriesTable;
@@ -148,7 +148,7 @@ function renderCountriesTable(countries) {
                         <button class="btn btn-sm btn-${country.status == 'active' ? 'secondary' : 'success'}" onclick="toggleStatus(${country.id})">
                             <i data-feather="${country.status == 'active' ? 'x' : 'check'}"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCountry(${country.id})">
+                        <button class="btn btn-sm btn-danger" onclick="delete_modal('/admin/countries/${country.id}')">
                             <i data-feather="trash"></i>
                         </button>
                     </td>
@@ -182,27 +182,6 @@ function toggleStatus(id) {
     });
 }
 
-function deleteCountry(id) {
-    showConfirmModal('Are you sure you want to delete this country?', 'Delete Country', function() {
-        $.ajax({
-            url: `/admin/countries/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast(response.message || 'Country deleted successfully', 'success');
-                    loadCountries();
-                }
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error deleting country';
-                showToast(errorMessage, 'error');
-            }
-        });
-    });
-}
 
 function resetFilters() {
     $('input[name="search"]').val('');

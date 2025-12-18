@@ -19,7 +19,12 @@
         <div class="col-md-4">
             <div class="form-group mb-3">
                 <label>Country Code <span class="text-danger">*</span></label>
-                <input type="text" name="country_code" class="form-control" value="{{ $lead->country_code }}" required>
+                <select name="country_code" class="form-control" required>
+                    <option value="">Select Country Code</option>
+                    @foreach($countryCodes as $code => $name)
+                    <option value="{{ $code }}" {{ $lead->country_code == $code ? 'selected' : '' }}>{{ $code }} - {{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="col-md-4">
@@ -98,25 +103,7 @@
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Followup Date</label>
-                <input type="date" name="followup_date" class="form-control" value="{{ $lead->followup_date ? $lead->followup_date->format('Y-m-d') : '' }}">
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <div class="form-check">
-                    <input type="checkbox" name="is_meta" value="1" class="form-check-input" id="is_meta_edit" {{ $lead->is_meta ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_meta_edit">Is Meta</label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <div class="form-check">
-                    <input type="checkbox" name="is_converted" value="1" class="form-check-input" id="is_converted_edit" {{ $lead->is_converted ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_converted_edit">Is Converted</label>
-                </div>
+                <input type="date" name="followup_date" class="form-control" value="{{ $lead->followup_date ? $lead->followup_date->format('Y-m-d') : '' }}" min="{{ now()->format('Y-m-d') }}">
             </div>
         </div>
     </div>

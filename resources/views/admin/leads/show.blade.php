@@ -93,14 +93,20 @@
                     <h5 class="card-title mb-0">
                         <i data-feather="user" class="me-2"></i>Lead Information
                     </h5>
+                    @if(!$lead->is_converted)
                     <div>
                         <button class="btn btn-sm btn-warning" onclick="show_ajax_modal('{{ route('admin.leads.ajax-edit', $lead) }}', 'Edit Lead')">
                             <i data-feather="edit"></i> Edit
                         </button>
                         <button class="btn btn-sm btn-success" onclick="openStatusModal({{ $lead->id }})">
-                            <i data-feather="refresh-cw"></i> Update Status
+                            <i data-feather="arrow-up"></i> Update Status
                         </button>
                     </div>
+                    @else
+                    <div>
+                        <span class="badge bg-success">Converted to Customer</span>
+                    </div>
+                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -249,12 +255,23 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    @if(!$lead->is_converted)
                     <button class="btn btn-success" onclick="openStatusModal({{ $lead->id }})">
-                        <i data-feather="refresh-cw" class="me-2"></i>Update Status
+                        <i data-feather="arrow-up" class="me-2"></i>Update Status
                     </button>
                     <button class="btn btn-warning" onclick="show_ajax_modal('{{ route('admin.leads.ajax-edit', $lead) }}', 'Edit Lead')">
                         <i data-feather="edit" class="me-2"></i>Edit Lead
                     </button>
+                    @else
+                    @php
+                        $customer = \App\Models\Customer::where('lead_id', $lead->id)->first();
+                    @endphp
+                    @if($customer)
+                    <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-primary">
+                        <i data-feather="user-check" class="me-2"></i>View Customer
+                    </a>
+                    @endif
+                    @endif
                     <a href="{{ route('admin.leads.index') }}" class="btn btn-secondary">
                         <i data-feather="arrow-left" class="me-2"></i>Back to List
                     </a>
@@ -347,13 +364,14 @@
     </div>
 </div>
 
+@if(!$lead->is_converted)
 <!-- Status Update Modal -->
 <div class="modal fade" id="statusUpdateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary-subtle">
                 <h5 class="modal-title">
-                    <i data-feather="refresh-cw" class="me-2"></i>Update Lead Status
+                    <i data-feather="arrow-up" class="me-2"></i>Update Lead Status
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -395,7 +413,19 @@
                     </div>
                     <div class="form-group mb-3">
                         <label>Date <span class="text-danger">*</span></label>
-                        <input type="date" name="date" id="statusDate" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="date" id="statusDate" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="needed_followup" id="neededFollowup" value="1">
+                            <label class="form-check-label" for="neededFollowup">
+                                Needed Followup
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3" id="followupDateGroup" style="display: none;">
+                        <label>Followup Date <span class="text-danger">*</span></label>
+                        <input type="date" name="followup_date" id="followupDate" class="form-control" min="{{ now()->format('Y-m-d') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -408,6 +438,7 @@
         </div>
     </div>
 </div>
+@endif
 @endsection
 
 @push('scripts')
@@ -421,6 +452,23 @@ $(document).ready(function() {
 
 $('#statusUpdateForm').on('submit', function(e) {
     e.preventDefault();
+    
+    // Validate followup date if checkbox is checked
+    if ($('#neededFollowup').is(':checked')) {
+        const followupDate = $('#followupDate').val();
+        if (!followupDate) {
+            showToast('Followup date is required when followup is needed', 'error');
+            return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(followupDate);
+        if (selectedDate < today) {
+            showToast('Followup date must be today or a future date', 'error');
+            return;
+        }
+    }
+    
     const leadId = $('#statusLeadId').val();
     const formData = new FormData(this);
 
@@ -461,7 +509,11 @@ $('#statusUpdateForm').on('submit', function(e) {
 function openStatusModal(leadId) {
     $('#statusLeadStatusId').val('');
     $('#statusRemarks').val('');
-    $('#statusDate').val('{{ date('Y-m-d') }}');
+    $('#statusDate').val('{{ now()->format('Y-m-d') }}');
+    $('#neededFollowup').prop('checked', false);
+    $('#followupDate').val('');
+    $('#followupDateGroup').hide();
+    $('#followupDate').removeAttr('required');
     $('#statusUpdateModal').modal('show');
     
     // Reinitialize feather icons after modal opens
@@ -471,5 +523,17 @@ function openStatusModal(leadId) {
         }
     }, 300);
 }
+
+// Handle followup checkbox toggle
+$(document).on('change', '#neededFollowup', function() {
+    if ($(this).is(':checked')) {
+        $('#followupDateGroup').show();
+        $('#followupDate').attr('required', 'required');
+    } else {
+        $('#followupDateGroup').hide();
+        $('#followupDate').removeAttr('required');
+        $('#followupDate').val('');
+    }
+});
 </script>
 @endpush

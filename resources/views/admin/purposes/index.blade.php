@@ -72,7 +72,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 $(document).ready(function() {
@@ -134,7 +134,7 @@ function renderPurposesTable(purposes) {
                         <button class="btn btn-sm btn-${purpose.status == 'active' ? 'secondary' : 'success'}" onclick="toggleStatus(${purpose.id})">
                             <i data-feather="${purpose.status == 'active' ? 'x' : 'check'}"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deletePurpose(${purpose.id})">
+                        <button class="btn btn-sm btn-danger" onclick="delete_modal('/admin/purposes/${purpose.id}')">
                             <i data-feather="trash"></i>
                         </button>
                     </td>
@@ -168,27 +168,6 @@ function toggleStatus(id) {
     });
 }
 
-function deletePurpose(id) {
-    showConfirmModal('Are you sure you want to delete this purpose?', 'Delete Purpose', function() {
-        $.ajax({
-            url: `/admin/purposes/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast(response.message || 'Purpose deleted successfully', 'success');
-                    loadPurposes();
-                }
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error deleting purpose';
-                showToast(errorMessage, 'error');
-            }
-        });
-    });
-}
 
 function resetFilters() {
     $('input[name="search"]').val('');

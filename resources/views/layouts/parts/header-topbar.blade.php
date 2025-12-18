@@ -6,7 +6,7 @@
             </a>
             <div class="navbar-brand">
                 <a href="{{ route('admin.dashboard') }}">
-                    <img src="{{ asset('assets/images/freedashDark.svg') }}" alt="" class="img-fluid">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="Softspire CRM" class="img-fluid" style="max-height: 50px;">
                 </a>
             </div>
             <a class="topbartoggler d-block d-lg-none waves-effect waves-light" href="javascript:void(0)"

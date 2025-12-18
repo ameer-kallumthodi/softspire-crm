@@ -5,68 +5,31 @@ namespace App\Helpers;
 class CountriesHelper
 {
     /**
-     * Get list of countries
+     * Get list of country codes with country names
      */
-    public static function getAll()
+    public static function getCountryCode()
     {
         return [
-            'US' => 'United States',
-            'CA' => 'Canada',
-            'GB' => 'United Kingdom',
-            'AU' => 'Australia',
-            'DE' => 'Germany',
-            'FR' => 'France',
-            'IT' => 'Italy',
-            'ES' => 'Spain',
-            'NL' => 'Netherlands',
-            'BE' => 'Belgium',
-            'CH' => 'Switzerland',
-            'AT' => 'Austria',
-            'SE' => 'Sweden',
-            'NO' => 'Norway',
-            'DK' => 'Denmark',
-            'FI' => 'Finland',
-            'PL' => 'Poland',
-            'IE' => 'Ireland',
-            'PT' => 'Portugal',
-            'GR' => 'Greece',
-            'CZ' => 'Czech Republic',
-            'HU' => 'Hungary',
-            'RO' => 'Romania',
-            'BG' => 'Bulgaria',
-            'HR' => 'Croatia',
-            'SK' => 'Slovakia',
-            'SI' => 'Slovenia',
-            'LT' => 'Lithuania',
-            'LV' => 'Latvia',
-            'EE' => 'Estonia',
-            'LU' => 'Luxembourg',
-            'MT' => 'Malta',
-            'CY' => 'Cyprus',
-            'IN' => 'India',
-            'CN' => 'China',
-            'JP' => 'Japan',
-            'KR' => 'South Korea',
-            'SG' => 'Singapore',
-            'MY' => 'Malaysia',
-            'TH' => 'Thailand',
-            'ID' => 'Indonesia',
-            'PH' => 'Philippines',
-            'VN' => 'Vietnam',
-            'NZ' => 'New Zealand',
-            'ZA' => 'South Africa',
-            'EG' => 'Egypt',
-            'AE' => 'United Arab Emirates',
-            'SA' => 'Saudi Arabia',
-            'IL' => 'Israel',
-            'TR' => 'Turkey',
-            'RU' => 'Russia',
-            'BR' => 'Brazil',
-            'MX' => 'Mexico',
-            'AR' => 'Argentina',
-            'CL' => 'Chile',
-            'CO' => 'Colombia',
-            'PE' => 'Peru',
+            '91'    => 'INDIA',
+            '971'   => 'UNITED ARAB EMIRATES',
+            '974'   => 'QATAR',
+            '1'     => 'CANADA / UNITED STATES',
+            '965'   => 'KUWAIT',
+            '966'   => 'SAUDI ARABIA',
+            '973'   => 'BAHRAIN',
+            '33'    => 'FRANCE',
+            '34'    => 'SPAIN',
+            '39'    => 'ITALY',
+            '44'    => 'UNITED KINGDOM',
+            '46'    => 'SWEDEN',
+            '48'    => 'POLAND',
+            '49'    => 'GERMANY',
+            '61'    => 'AUSTRALIA',
+            '64'    => 'NEW ZEALAND',
+            '353'   => 'IRELAND',
+            '358'   => 'FINLAND',
+            '370'   => 'LITHUANIA',
+            '968'   => 'OMAN',
         ];
     }
 
@@ -75,7 +38,7 @@ class CountriesHelper
      */
     public static function getName($code)
     {
-        $countries = self::getAll();
+        $countries = self::getCountryCode();
         return $countries[$code] ?? $code;
     }
 
@@ -84,7 +47,7 @@ class CountriesHelper
      */
     public static function getCodes()
     {
-        return array_keys(self::getAll());
+        return array_keys(self::getCountryCode());
     }
 }
 

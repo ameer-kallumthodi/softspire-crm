@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\PurposeController;
 use App\Http\Controllers\Admin\LeadStatusController;
 use App\Http\Controllers\Admin\LeadSourceController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\QuotationController;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -17,6 +19,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Leads - AJAX routes must come before resource routes
     Route::get('/leads/ajax/add', [LeadController::class, 'ajaxAdd'])->name('leads.ajax-add');
     Route::get('/leads/{lead}/ajax/edit', [LeadController::class, 'ajaxEdit'])->name('leads.ajax-edit');
+    Route::get('/leads/{lead}/ajax/convert', [LeadController::class, 'ajaxConvert'])->name('leads.ajax-convert');
+    Route::post('/leads/{lead}/convert', [LeadController::class, 'convert'])->name('leads.convert');
     Route::post('/leads/{lead}/status-update', [LeadController::class, 'updateStatus'])->name('leads.status-update');
     Route::resource('leads', LeadController::class);
     
@@ -49,6 +53,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/users/{user}/ajax/edit', [UsersController::class, 'ajaxEdit'])->name('users.ajax-edit');
     Route::get('/users/{id}', [UsersController::class, 'show'])->name('users.show');
     Route::resource('users', UsersController::class);
+    
+    // Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    
+    // Quotations
+    Route::get('/customers/{customer}/quotations', [QuotationController::class, 'index'])->name('quotations.index');
+    Route::get('/customers/{customer}/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
+    Route::post('/customers/{customer}/quotations', [QuotationController::class, 'store'])->name('quotations.store');
+    Route::get('/quotations/{quotation}/pdf', [QuotationController::class, 'generatePDF'])->name('quotations.pdf');
     
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');

@@ -123,7 +123,19 @@
                     </div>
                     <div class="form-group mb-3">
                         <label>Date <span class="text-danger">*</span></label>
-                        <input type="date" name="date" id="statusDate" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="date" id="statusDate" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="needed_followup" id="neededFollowup" value="1">
+                            <label class="form-check-label" for="neededFollowup">
+                                Needed Followup
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3" id="followupDateGroup" style="display: none;">
+                        <label>Followup Date <span class="text-danger">*</span></label>
+                        <input type="date" name="followup_date" id="followupDate" class="form-control" min="{{ date('Y-m-d') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -137,7 +149,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 $(document).ready(function() {
@@ -194,16 +206,19 @@ function renderLeadsTable(leads) {
                     </td>
                     <td>${date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                     <td>
-                                    <a href="/admin/leads/${lead.id}" class="btn btn-sm btn-info">
+                                    <a href="/admin/leads/${lead.id}" class="btn btn-sm btn-info" title="View Lead">
                                         <i data-feather="eye"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-warning" onclick="show_ajax_modal('/admin/leads/${lead.id}/ajax/edit', 'Update Lead')">
+                                    <button class="btn btn-sm btn-warning" onclick="show_ajax_modal('/admin/leads/${lead.id}/ajax/edit', 'Update Lead')" title="Edit Lead">
                                         <i data-feather="edit"></i>
                                     </button>
-                        <button class="btn btn-sm btn-success" onclick="openStatusModal(${lead.id})">
+                        <button class="btn btn-sm btn-primary" onclick="show_ajax_modal('/admin/leads/${lead.id}/ajax/convert', 'Convert Lead')" title="Convert Lead">
                             <i data-feather="refresh-cw"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteLead(${lead.id})">
+                        <button class="btn btn-sm btn-success" onclick="openStatusModal(${lead.id})" title="Update Status">
+                            <i data-feather="arrow-up"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="delete_modal('/admin/leads/${lead.id}')" title="Delete Lead">
                             <i data-feather="trash"></i>
                         </button>
                     </td>
@@ -244,8 +259,14 @@ function openStatusModal(leadId) {
                 `);
                 $('#statusLeadStatusId').val('');
                 $('#statusRemarks').val('');
-                $('#statusDate').val('{{ date('Y-m-d') }}');
-                $('#statusUpdateModal').modal('show');
+                $('#statusDate').val('{{ now()->format('Y-m-d') }}');
+                $('#neededFollowup').prop('checked', false);
+                $('#followupDate').val('');
+                $('#followupDateGroup').hide();
+                $('#followupDate').removeAttr('required');
+                const statusModalElement = document.getElementById('statusUpdateModal');
+                const statusModal = bootstrap.Modal.getOrCreateInstance(statusModalElement);
+                statusModal.show();
             }
         },
         error: function(xhr) {
@@ -255,8 +276,37 @@ function openStatusModal(leadId) {
     });
 }
 
+// Handle followup checkbox toggle
+$(document).on('change', '#neededFollowup', function() {
+    if ($(this).is(':checked')) {
+        $('#followupDateGroup').show();
+        $('#followupDate').attr('required', 'required');
+    } else {
+        $('#followupDateGroup').hide();
+        $('#followupDate').removeAttr('required');
+        $('#followupDate').val('');
+    }
+});
+
 $('#statusUpdateForm').on('submit', function(e) {
     e.preventDefault();
+    
+    // Validate followup date if checkbox is checked
+    if ($('#neededFollowup').is(':checked')) {
+        const followupDate = $('#followupDate').val();
+        if (!followupDate) {
+            showToast('Followup date is required when followup is needed', 'error');
+            return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(followupDate);
+        if (selectedDate < today) {
+            showToast('Followup date must be today or a future date', 'error');
+            return;
+        }
+    }
+    
     const leadId = $('#statusLeadId').val();
     const formData = new FormData(this);
 
@@ -272,7 +322,11 @@ $('#statusUpdateForm').on('submit', function(e) {
         success: function(response) {
             if (response.success) {
                 showToast(response.message || 'Lead status updated successfully', 'success');
-                $('#statusUpdateModal').modal('hide');
+                const statusModalElement = document.getElementById('statusUpdateModal');
+                const statusModal = bootstrap.Modal.getInstance(statusModalElement);
+                if (statusModal) {
+                    statusModal.hide();
+                }
                 loadLeads();
             }
         },
@@ -283,26 +337,5 @@ $('#statusUpdateForm').on('submit', function(e) {
     });
 });
 
-function deleteLead(id) {
-    showConfirmModal('Are you sure you want to delete this lead?', 'Delete Lead', function() {
-        $.ajax({
-            url: `/admin/leads/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast(response.message || 'Lead deleted successfully', 'success');
-                    loadLeads();
-                }
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error deleting lead';
-                showToast(errorMessage, 'error');
-            }
-        });
-    });
-}
 </script>
 @endpush

@@ -133,7 +133,7 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label>Date <span class="text-danger">*</span></label>
-                                <input type="date" name="date" class="form-control @error('date') is-invalid @enderror" value="{{ old('date', date('Y-m-d')) }}" required>
+                                <input type="date" name="date" class="form-control @error('date') is-invalid @enderror" value="{{ old('date', now()->format('Y-m-d')) }}" required>
                                 @error('date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

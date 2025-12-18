@@ -72,7 +72,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 $(document).ready(function() {
@@ -134,7 +134,7 @@ function renderLeadSourcesTable(leadSources) {
                         <button class="btn btn-sm btn-${leadSource.status == 'active' ? 'secondary' : 'success'}" onclick="toggleStatus(${leadSource.id})">
                             <i data-feather="${leadSource.status == 'active' ? 'x' : 'check'}"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteLeadSource(${leadSource.id})">
+                        <button class="btn btn-sm btn-danger" onclick="delete_modal('/admin/lead-sources/${leadSource.id}')">
                             <i data-feather="trash"></i>
                         </button>
                     </td>
@@ -168,27 +168,6 @@ function toggleStatus(id) {
     });
 }
 
-function deleteLeadSource(id) {
-    showConfirmModal('Are you sure you want to delete this lead source?', 'Delete Lead Source', function() {
-        $.ajax({
-            url: `/admin/lead-sources/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast(response.message || 'Lead source deleted successfully', 'success');
-                    loadLeadSources();
-                }
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error deleting lead source';
-                showToast(errorMessage, 'error');
-            }
-        });
-    });
-}
 
 function resetFilters() {
     $('input[name="search"]').val('');

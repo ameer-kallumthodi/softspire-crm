@@ -6,6 +6,8 @@
 <script src="{{ asset('assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js') }}"></script>
 <script src="{{ asset('dist/js/sidebarmenu.js') }}"></script>
 <script src="{{ asset('dist/js/custom.min.js') }}"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Toast Notification Functions -->
 <script>
@@ -50,7 +52,28 @@ function createToastContainer() {
 
 // Confirmation modal function
 function showConfirmModal(message, title = 'Confirm Action', onConfirm) {
-    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+        console.error('Bootstrap is not loaded');
+        if (confirm(title + ': ' + message)) {
+            if (onConfirm) {
+                onConfirm();
+            }
+        }
+        return;
+    }
+    
+    const modalElement = document.getElementById('confirmModal');
+    if (!modalElement) {
+        console.error('confirmModal element not found');
+        if (confirm(title + ': ' + message)) {
+            if (onConfirm) {
+                onConfirm();
+            }
+        }
+        return;
+    }
+    
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     document.getElementById('confirmModalTitle').textContent = title;
     document.getElementById('confirmModalBody').textContent = message;
     

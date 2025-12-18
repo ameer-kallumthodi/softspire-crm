@@ -27,7 +27,7 @@
                 <div class="col-lg-5 col-md-7 bg-white">
                     <div class="p-3">
                         <div class="text-center">
-                            <img src="{{ asset('assets/images/big/icon.png') }}" alt="wrapkit">
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="Softspire CRM" style="max-height: 80px;">
                         </div>
                         <h2 class="mt-3 text-center">Sign In</h2>
                         <p class="text-center">Enter your email address and password to access admin panel.</p>

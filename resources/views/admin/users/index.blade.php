@@ -68,7 +68,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 // Store current role filter for form reset
@@ -129,7 +129,7 @@ function renderUsersTable(users) {
                         <button class="btn btn-sm btn-warning" onclick="show_ajax_modal('/admin/users/${user.id}/ajax/edit', 'Update User')">
                             <i data-feather="edit"></i>
                         </button>
-                        ${user.id != currentUserId ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                        ${user.id != currentUserId ? `<button class="btn btn-sm btn-danger" onclick="delete_modal('/admin/users/${user.id}')">
                             <i data-feather="trash"></i>
                         </button>` : ''}
                     </td>
@@ -173,29 +173,6 @@ function openAddUserModal() {
     show_ajax_modal(url, title);
 }
 
-function deleteUser(id) {
-    showConfirmModal('Are you sure you want to delete this user?', 'Delete User', function() {
-        $.ajax({
-            url: `/admin/users/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast(response.message || 'User deleted successfully', 'success');
-                    loadUsers();
-                } else {
-                    showToast(response.message || 'Error deleting user', 'error');
-                }
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Error deleting user';
-                showToast(errorMessage, 'error');
-            }
-        });
-    });
-}
 </script>
 @endpush
 
