@@ -43,7 +43,7 @@
                     <table class="table table-striped table-bordered" id="customersTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL No</th>
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
@@ -113,11 +113,11 @@ function renderCustomersTable(customers) {
     if (customers.length === 0) {
         html = '<tr><td colspan="9" class="text-center">No customers found</td></tr>';
     } else {
-        customers.forEach(function(customer) {
+        customers.forEach(function(customer, index) {
             const convertedDate = new Date(customer.converted_date);
             html += `
                 <tr>
-                    <td>${customer.id}</td>
+                    <td>${index + 1}</td>
                     <td>${customer.name}</td>
                     <td>${customer.country_code} ${customer.phone}</td>
                     <td>${customer.email || 'N/A'}</td>

@@ -18,6 +18,12 @@
                 <div class="d-flex align-items-center mb-4">
                     <h4 class="card-title">Leads</h4>
                     <div class="ms-auto">
+                        <button type="button" class="btn btn-warning me-2" onclick="show_ajax_modal('{{ route('admin.leads.bulk-reassign') }}', 'Bulk Reassign Leads')">
+                            <i data-feather="users"></i> Bulk Reassign
+                        </button>
+                        <button type="button" class="btn btn-success me-2" onclick="show_ajax_modal('{{ route('admin.leads.bulk-upload') }}', 'Bulk Upload Leads')">
+                            <i data-feather="upload"></i> Bulk Upload
+                        </button>
                         <button type="button" class="btn btn-primary" onclick="show_ajax_modal('{{ route('admin.leads.ajax-add') }}', 'Add New Lead')">
                             <i data-feather="plus"></i> Add New Lead
                         </button>
@@ -64,7 +70,7 @@
                     <table class="table table-striped table-bordered" id="leadsTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL No</th>
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
@@ -192,11 +198,11 @@ function renderLeadsTable(leads) {
     if (leads.length === 0) {
         html = '<tr><td colspan="8" class="text-center">No leads found</td></tr>';
     } else {
-        leads.forEach(function(lead) {
+        leads.forEach(function(lead, index) {
             const date = new Date(lead.date);
             html += `
                 <tr>
-                    <td>${lead.id}</td>
+                    <td>${index + 1}</td>
                     <td>${lead.name}</td>
                     <td>${lead.country_code} ${lead.phone}</td>
                     <td>${lead.email || 'N/A'}</td>

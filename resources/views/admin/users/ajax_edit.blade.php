@@ -11,37 +11,54 @@
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+                <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group mb-3">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control">
-                <small class="text-muted">Leave blank to keep current password</small>
+                <label>Country Code <span class="text-danger">*</span></label>
+                <select name="country_code" class="form-control" required>
+                    <option value="">Select Country Code</option>
+                    @foreach($countryCodes as $code => $name)
+                    <option value="{{ $code }}" {{ old('country_code', $user->country_code) == $code ? 'selected' : '' }}>{{ $code }} - {{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group mb-3">
-                <label>Confirm Password</label>
-                <input type="password" name="password_confirmation" class="form-control">
+                <label>Phone <span class="text-danger">*</span></label>
+                <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="Enter phone number" required>
             </div>
         </div>
-    </div>
-    <input type="hidden" name="role_id" value="{{ $user->role_id }}">
-    <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group mb-3">
                 <label>Status <span class="text-danger">*</span></label>
                 <select name="status" class="form-control" required>
-                    <option value="active" {{ $user->status == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ $user->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ old('status', $user->status) == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $user->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label>Joining Date <span class="text-danger">*</span></label>
+                <input type="date" name="joining_date" class="form-control" value="{{ old('joining_date', $user->joining_date ? $user->joining_date->format('Y-m-d') : '') }}" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label>Date of Birth <span class="text-danger">*</span></label>
+                <input type="date" name="dob" class="form-control" value="{{ old('dob', $user->dob ? $user->dob->format('Y-m-d') : '') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}" required>
+                <small class="text-muted">Must be at least 18 years old</small>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="role_id" value="{{ $user->role_id }}">
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-primary">Update User</button>

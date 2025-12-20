@@ -1,4 +1,4 @@
-<form id="userForm" method="POST" action="{{ route('admin.users.store') }}">
+<form id="managerForm" method="POST" action="{{ route('admin.managers.store') }}">
     @csrf
     <div class="row">
         <div class="col-md-6">
@@ -71,16 +71,15 @@
             </div>
         </div>
     </div>
-    <input type="hidden" name="role_filter" value="{{ $roleFilter }}">
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save User</button>
+        <button type="submit" class="btn btn-primary">Save Manager</button>
     </div>
 </form>
 
 <script>
 $(document).ready(function() {
-    $('#userForm').on('submit', function(e) {
+    $('#managerForm').on('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         
@@ -96,17 +95,17 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    showToast(response.message || 'User created successfully', 'success');
+                    showToast(response.message || 'Manager created successfully', 'success');
                     $('#ajax_modal').modal('hide');
-                    if (typeof loadUsers === 'function') {
-                        loadUsers();
+                    if (typeof loadManagers === 'function') {
+                        loadManagers();
                     } else {
                         location.reload();
                     }
                 }
             },
             error: function(xhr) {
-                let errorMessage = 'Error creating user';
+                let errorMessage = 'Error creating manager';
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
@@ -121,4 +120,3 @@ $(document).ready(function() {
     });
 });
 </script>
-

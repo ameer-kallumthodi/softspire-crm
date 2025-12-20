@@ -9,12 +9,20 @@ class LeadObserver
 {
     public function created(Lead $lead)
     {
-        LeadActivity::create([
-            'lead_id' => $lead->id,
-            'activity_type' => 'create',
-            'date' => $lead->date,
-            'description' => 'Lead created',
-        ]);
+        // Check if activity already exists to prevent duplicates
+        $existingActivity = LeadActivity::where('lead_id', $lead->id)
+            ->where('activity_type', 'create')
+            ->whereDate('created_at', now()->toDateString())
+            ->first();
+        
+        if (!$existingActivity) {
+            LeadActivity::create([
+                'lead_id' => $lead->id,
+                'activity_type' => 'create',
+                'date' => $lead->date,
+                'description' => 'Lead created',
+            ]);
+        }
     }
 
     public function updated(Lead $lead)

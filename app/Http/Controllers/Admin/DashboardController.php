@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Models\Lead;
 use App\Models\LeadStatus;
+use App\Models\LeadSource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends BaseController
 {
@@ -41,6 +43,35 @@ class DashboardController extends BaseController
             ];
         })->values();
 
+        // Chart 1: Leads over the last 30 days (daily breakdown)
+        $leadsOverTime = [];
+        $labels = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $labels[] = $date->format('M d');
+            $startOfDay = $date->copy()->startOfDay();
+            $endOfDay = $date->copy()->endOfDay();
+            $count = Lead::buildQuery(null, null, null, null)
+                ->whereBetween('created_at', [$startOfDay, $endOfDay])
+                ->count();
+            $leadsOverTime[] = $count;
+        }
+
+        // Chart 2: Leads by Source
+        $leadsBySource = Lead::buildQuery(null, null, null, null)
+            ->select('lead_source_id', DB::raw('count(*) as count'))
+            ->groupBy('lead_source_id')
+            ->get()
+            ->map(function($item) {
+                $source = LeadSource::find($item->lead_source_id);
+                return [
+                    'name' => $source->name ?? 'Unknown',
+                    'count' => $item->count
+                ];
+            })
+            ->sortByDesc('count')
+            ->values();
+
         $data = [
             'totalLeads' => $totalLeads,
             'newLeads' => $newLeads,
@@ -52,6 +83,9 @@ class DashboardController extends BaseController
             'thisMonthLeads' => $thisMonthLeads,
             'recentLeads' => $recentLeads,
             'leadsByStatus' => $leadsByStatus,
+            'leadsOverTime' => $leadsOverTime,
+            'leadsOverTimeLabels' => $labels,
+            'leadsBySource' => $leadsBySource,
         ];
 
         return view('admin.dashboard', $data);

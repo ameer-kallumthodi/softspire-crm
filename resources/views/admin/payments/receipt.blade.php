@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8">
-    <title>Quotation - {{ $quotation->quotation_number }}</title>
+    <title>Payment Receipt - {{ $payment->payment_number }}</title>
     <style>
         @media print {
             .page {
@@ -98,7 +98,7 @@
             max-height: 100%;
             object-fit: contain;
         }
-        .quotation-title {
+        .receipt-title {
             color: #fff;
             font-size: 58px;
             font-weight: bold;
@@ -141,10 +141,10 @@
             color: #495057;
             line-height: 1.6;
         }
-        .quotation-details {
+        .payment-details {
             text-align: right;
         }
-        .quotation-number-box {
+        .payment-number-box {
             background: #212529;
             color: #fff;
             padding: 12px 18px;
@@ -159,110 +159,84 @@
             margin-bottom: 5px;
             color: #495057;
         }
-        /* Items table */
-        .items-table {
+        /* Payment details table */
+        .payment-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        .items-table thead tr th {
+        .payment-table thead tr th {
             padding: 14px 12px;
             text-align: left;
             font-weight: bold;
             font-size: 12px;
             color: #fff;
         }
-        .items-table thead tr th:nth-child(1) {
+        .payment-table thead tr th:nth-child(1) {
             background: #dc3545;
-            width: 70%;
+            width: 50%;
         }
-        .items-table thead tr th:nth-child(2) {
+        .payment-table thead tr th:nth-child(2) {
             background: #212529;
-            text-align: right;
-            width: 30%;
+            width: 50%;
         }
-        .items-table tbody tr td {
+        .payment-table tbody tr td {
             padding: 14px 12px;
             border-bottom: 1px solid #e9ecef;
             font-size: 11px;
-            vertical-align: top;
         }
-        .items-table tbody tr:last-child td {
+        .payment-table tbody tr:last-child td {
             border-bottom: none;
         }
-        .item-description {
-            font-size: 10px;
-            color: #6c757d;
-            margin-top: 5px;
-            line-height: 1.4;
-        }
-        .items-table tbody tr td:first-child {
+        .payment-table tbody tr td:first-child {
             font-weight: 500;
         }
         .text-right {
             text-align: right;
         }
-        /* Payment and totals section */
-        .bottom-section {
-            display: flex;
-            justify-content: space-between;
+        /* Amount section */
+        .amount-section {
             margin-bottom: 30px;
         }
-        .payment-section, .totals-section {
-            width: 48%;
-        }
-        .section-title {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
-            color: #212529;
-        }
-        .payment-details,         .total-row {
-            font-size: 11px;
-            margin-bottom: 8px;
-            color: #495057;
-            text-align: right;
-        }
-        .grand-total-box {
-            background: #dc3545;
+        .amount-box {
+            background: #28a745;
             color: #fff;
-            padding: 18px 20px;
-            margin-top: 12px;
+            padding: 25px 30px;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             border-radius: 2px;
         }
-        .grand-total-label {
+        .amount-label {
             font-weight: bold;
             font-size: 13px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
-        .grand-total-amount {
+        .amount-value {
             font-weight: bold;
-            font-size: 22px;
+            font-size: 32px;
         }
-        /* Terms and conditions */
-        .terms-section {
-            margin-bottom: 15px;
+        /* Payment summary */
+        .summary-section {
+            margin-bottom: 20px;
         }
-        .terms-title {
-            font-weight: bold;
-            font-size: 12px;
+        .summary-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 10px;
-            color: #212529;
+            font-size: 12px;
         }
-        .terms-content {
-            font-size: 10px;
-            color: #495057;
-            line-height: 1.8;
-        }
-        .terms-content ul {
-            margin-left: 20px;
-            margin-top: 5px;
-        }
-        .terms-content li {
-            margin-bottom: 5px;
+        .summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 1px solid #dee2e6;
+            font-weight: bold;
         }
         /* Footer */
         .footer {
@@ -306,6 +280,7 @@
             margin-bottom: 15px;
             margin-top: 10px;
             color: #212529;
+            text-align: center;
         }
         /* Bottom diagonal design */
         .footer-design {
@@ -361,14 +336,20 @@
                     </div>
                 </div>
             </div>
-            <div class="quotation-title">QUOTATION</div>
+            <div class="receipt-title">RECEIPT</div>
         </div>
 
         <div class="content">
-            <!-- Customer and Quotation Info -->
+            @php
+                $quotation = $payment->quotation;
+                $totalPaid = $quotation->payments->sum('amount');
+                $pendingAmount = $quotation->total_amount - $totalPaid;
+            @endphp
+
+            <!-- Customer and Payment Info -->
             <div class="info-section">
                 <div class="info-box">
-                    <div class="info-label">QUOTATION TO:</div>
+                    <div class="info-label">PAID BY:</div>
                     <div class="customer-name">{{ $quotation->customer->name }}</div>
                     <div class="customer-details">
                         @if($quotation->customer->email)
@@ -380,81 +361,93 @@
                         @endif
                     </div>
                 </div>
-                <div class="info-box quotation-details">
-                    <div class="quotation-number-box">QUOTATION NO: {{ $quotation->quotation_number }}</div>
-                    <div class="detail-row">Quotation Date: {{ $quotation->quotation_date->format('d M, Y') }}</div>
-                    @if($quotation->duration_months)
-                    <div class="detail-row">Duration: {{ $quotation->duration_months }}@if(is_numeric($quotation->duration_months)) months @endif</div>
-                    @endif
-                    @if($quotation->technologies)
-                    <div class="detail-row">Technologies: {{ $quotation->technologies }}</div>
+                <div class="info-box payment-details">
+                    <div class="payment-number-box">RECEIPT NO: {{ $payment->payment_number }}</div>
+                    <div class="detail-row">Payment Date: {{ $payment->payment_date->format('d M, Y') }}</div>
+                    <div class="detail-row">Quotation No: {{ $quotation->quotation_number }}</div>
+                    <div class="detail-row">Payment Type: {{ ucfirst(str_replace('_', ' ', $payment->payment_type)) }}</div>
+                    @if($payment->transaction_id)
+                    <div class="detail-row">Transaction ID: {{ $payment->transaction_id }}</div>
                     @endif
                 </div>
             </div>
 
-            <!-- Items Table -->
-            <table class="items-table">
+            <!-- Payment Details Table -->
+            <table class="payment-table">
                 <thead>
                     <tr>
-                        <th>Item description</th>
-                        <th>Total Price</th>
+                        <th>Description</th>
+                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($quotation->items as $item)
                     <tr>
-                        <td>
-                            {{ $item->item_name }}
-                            @if($item->description)
-                            <div class="item-description">{{ $item->description }}</div>
-                            @endif
-                        </td>
-                        <td class="text-right">&#8377;{{ number_format($item->amount, 2) }}</td>
+                        <td>Quotation Number</td>
+                        <td class="text-right">{{ $quotation->quotation_number }}</td>
                     </tr>
-                    @endforeach
+                    <tr>
+                        <td>Quotation Date</td>
+                        <td class="text-right">{{ $quotation->quotation_date->format('d M, Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Quotation Total Amount</td>
+                        <td class="text-right">&#8377;{{ number_format($quotation->total_amount, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Paid Amount</td>
+                        <td class="text-right">&#8377;{{ number_format($totalPaid, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pending Amount</td>
+                        <td class="text-right">&#8377;{{ number_format($pendingAmount, 2) }}</td>
+                    </tr>
                 </tbody>
             </table>
 
-            <!-- Payment and Totals -->
-            <div class="bottom-section">
-                <div class="payment-section">
-                    <div class="section-title">Payment method</div>
-                    <div class="payment-details">
-                        Account: 0123456789012090<br>
-                        Swift: 01234560<br>
-                        Payoneer: payoneer@softspire.com
-                    </div>
+            <!-- Payment Amount -->
+            <div class="amount-section">
+                <div class="amount-box">
+                    <div class="amount-label">Payment Received</div>
+                    <div class="amount-value">&#8377;{{ number_format($payment->amount, 2) }}</div>
                 </div>
-                <div class="totals-section">
-                    <div class="total-row text-right">Sub Total: &#8377;{{ number_format($quotation->total_amount, 2) }}</div>
-                    <div class="grand-total-box">
-                        <div class="grand-total-label">Grand Total</div>
-                        <div class="grand-total-amount">&#8377;{{ number_format($quotation->total_amount, 2) }}</div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="summary-section">
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span>Quotation Total:</span>
+                        <span>&#8377;{{ number_format($quotation->total_amount, 2) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Previously Paid:</span>
+                        <span>&#8377;{{ number_format($totalPaid - $payment->amount, 2) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>This Payment:</span>
+                        <span>&#8377;{{ number_format($payment->amount, 2) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Paid:</span>
+                        <span>&#8377;{{ number_format($totalPaid, 2) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Remaining Balance:</span>
+                        <span>&#8377;{{ number_format($pendingAmount, 2) }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Terms and Conditions -->
-            <div class="terms-section">
-                <div class="terms-title">Terms & Conditions:</div>
-                <div class="terms-content">
-                    <ul>
-                        <li>The customer should pay 35% of the total invoice value before the project starts.</li>
-                        <li>The balance due must be paid in full before project completion and delivery.</li>
-                        <li>Any delays caused by the client, such as late payment or approvals, may result in delay to the project timeline.</li>
-                        <li>Support will be provided after the warranty period at an additional cost.</li>
-                        @if($quotation->annual_amount)
-                        <li>Annual project maintenance will be charged at &#8377;{{ number_format($quotation->annual_amount, 2) }}/- per year.</li>
-                        @else
-                        <li>Annual project maintenance will be charged at an additional cost (to be discussed and finalized).</li>
-                        @endif
-                        <li>If the source code is required by the client, it will be provided at an additional charge (to be discussed and finalized).</li>
-                        <li>Any third-party accounts, services, or tools (such as WhatsApp Business API, AI models, payment gateways, SMS/Email services, etc.) must be purchased and maintained by the client at their own cost.</li>
-                    </ul>
+            @if($payment->notes)
+            <div class="summary-section">
+                <div class="summary-box">
+                    <div class="info-label mb-2">Notes:</div>
+                    <div class="detail-row">{{ $payment->notes }}</div>
                 </div>
             </div>
+            @endif
 
-            <div class="thanks-message">Thanks for your business!</div>
+            <div class="thanks-message">Thank you for your payment!</div>
         </div>
 
         <!-- Footer -->
@@ -476,4 +469,3 @@
     </div>
 </body>
 </html>
-

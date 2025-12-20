@@ -47,7 +47,7 @@
                     <table class="table table-striped table-bordered" id="countriesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL No</th>
                                 <th>Name</th>
                                 <th>Status</th>
                                 <th>Created</th>
@@ -127,10 +127,10 @@ function renderCountriesTable(countries) {
     if (countries.length === 0) {
         html = '<tr><td colspan="5" class="text-center">No countries found</td></tr>';
     } else {
-        countries.forEach(function(country) {
+        countries.forEach(function(country, index) {
             html += `
                 <tr>
-                    <td>${country.id}</td>
+                    <td>${index + 1}</td>
                     <td>${country.name}</td>
                     <td>
                         <span class="badge bg-${country.status == 'active' ? 'success' : 'danger'}">

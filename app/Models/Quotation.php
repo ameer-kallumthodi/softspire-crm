@@ -14,6 +14,7 @@ class Quotation extends BaseModel
         'quotation_date' => 'date',
         'total_amount' => 'decimal:2',
         'annual_amount' => 'decimal:2',
+        'is_accepted' => 'boolean',
     ];
 
     public function customer()
@@ -24,6 +25,11 @@ class Quotation extends BaseModel
     public function items()
     {
         return $this->hasMany(QuotationItem::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public static function generateQuotationNumber()

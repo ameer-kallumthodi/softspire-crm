@@ -1,16 +1,17 @@
-<form id="userForm" method="POST" action="{{ route('admin.users.store') }}">
+<form id="telecallerEditForm" method="POST" action="{{ route('admin.telecallers.update', $user->id) }}">
     @csrf
+    @method('PUT')
     <div class="row">
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Name <span class="text-danger">*</span></label>
-                <input type="text" name="name" class="form-control" required>
+                <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control" required>
+                <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
             </div>
         </div>
     </div>
@@ -21,7 +22,7 @@
                 <select name="country_code" class="form-control" required>
                     <option value="">Select Country Code</option>
                     @foreach($countryCodes as $code => $name)
-                    <option value="{{ $code }}" {{ old('country_code') == $code ? 'selected' : '' }}>{{ $code }} - {{ $name }}</option>
+                    <option value="{{ $code }}" {{ old('country_code', $user->country_code) == $code ? 'selected' : '' }}>{{ $code }} - {{ $name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -29,15 +30,15 @@
         <div class="col-md-4">
             <div class="form-group mb-3">
                 <label>Phone <span class="text-danger">*</span></label>
-                <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" placeholder="Enter phone number" required>
+                <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="Enter phone number" required>
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group mb-3">
                 <label>Status <span class="text-danger">*</span></label>
                 <select name="status" class="form-control" required>
-                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ old('status', $user->status) == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $user->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
         </div>
@@ -46,41 +47,26 @@
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Joining Date <span class="text-danger">*</span></label>
-                <input type="date" name="joining_date" class="form-control" value="{{ old('joining_date') }}" required>
+                <input type="date" name="joining_date" class="form-control" value="{{ old('joining_date', $user->joining_date ? $user->joining_date->format('Y-m-d') : '') }}" required>
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group mb-3">
                 <label>Date of Birth <span class="text-danger">*</span></label>
-                <input type="date" name="dob" class="form-control" value="{{ old('dob') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}" required>
+                <input type="date" name="dob" class="form-control" value="{{ old('dob', $user->dob ? $user->dob->format('Y-m-d') : '') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}" required>
                 <small class="text-muted">Must be at least 18 years old</small>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <label>Password <span class="text-danger">*</span></label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group mb-3">
-                <label>Confirm Password <span class="text-danger">*</span></label>
-                <input type="password" name="password_confirmation" class="form-control" required>
-            </div>
-        </div>
-    </div>
-    <input type="hidden" name="role_filter" value="{{ $roleFilter }}">
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save User</button>
+        <button type="submit" class="btn btn-primary">Update Telecaller</button>
     </div>
 </form>
 
 <script>
 $(document).ready(function() {
-    $('#userForm').on('submit', function(e) {
+    $('#telecallerEditForm').on('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         
@@ -96,17 +82,17 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    showToast(response.message || 'User created successfully', 'success');
+                    showToast(response.message || 'Telecaller updated successfully', 'success');
                     $('#ajax_modal').modal('hide');
-                    if (typeof loadUsers === 'function') {
-                        loadUsers();
+                    if (typeof loadTelecallers === 'function') {
+                        loadTelecallers();
                     } else {
                         location.reload();
                     }
                 }
             },
             error: function(xhr) {
-                let errorMessage = 'Error creating user';
+                let errorMessage = 'Error updating telecaller';
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
@@ -121,4 +107,3 @@ $(document).ready(function() {
     });
 });
 </script>
-

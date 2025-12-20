@@ -54,24 +54,67 @@
         font-size: 0.875rem;
         font-weight: 500;
     }
-    .quick-action-card {
-        border-radius: 10px;
-        border: 2px dashed #e2e8f0;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-top: 20px;
     }
-    .quick-action-card:hover {
-        border-color: #667eea;
-        background: #f7fafc;
-        transform: translateY(-3px);
-        text-decoration: none;
-        color: inherit;
+    .chart-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+    .chart-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+    }
+    .chart-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-bottom: none;
+    }
+    .chart-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+    .chart-body {
+        padding: 25px;
+        background: #fff;
     }
     .recent-leads-table {
-        border-radius: 10px;
+        border-radius: 0;
         overflow: hidden;
+    }
+    .recent-leads-table table {
+        margin-bottom: 0;
+    }
+    .recent-leads-table thead {
+        background: #f8f9fa;
+    }
+    .recent-leads-table thead th {
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        color: #495057;
+        padding: 15px;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .recent-leads-table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    .recent-leads-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    .recent-leads-table tbody tr:hover {
+        background: #f8f9fa;
+        transform: scale(1.01);
     }
     .status-badge {
         padding: 0.35rem 0.75rem;
@@ -211,47 +254,35 @@
     </div>
 </div>
 
-<!-- Quick Actions -->
+<!-- Charts Section -->
 <div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-4">
-                    <i data-feather="zap" class="me-2"></i> Quick Actions
+    <!-- Chart 1: Leads Over Time (Line Chart) -->
+    <div class="col-lg-8 mb-4">
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h4>
+                    <i data-feather="trending-up" class="me-2"></i> Leads Over Time (Last 30 Days)
                 </h4>
-                <div class="row">
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ route('admin.leads.create') }}" class="quick-action-card card p-3 text-center">
-                            <div class="card-body">
-                                <i data-feather="plus-circle" class="mb-2" style="width: 32px; height: 32px; color: #667eea;"></i>
-                                <h6 class="mb-0">Add New Lead</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ route('admin.leads.index') }}" class="quick-action-card card p-3 text-center">
-                            <div class="card-body">
-                                <i data-feather="list" class="mb-2" style="width: 32px; height: 32px; color: #f5576c;"></i>
-                                <h6 class="mb-0">View All Leads</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ route('admin.countries.index') }}" class="quick-action-card card p-3 text-center">
-                            <div class="card-body">
-                                <i data-feather="globe" class="mb-2" style="width: 32px; height: 32px; color: #4facfe;"></i>
-                                <h6 class="mb-0">Manage Countries</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <a href="{{ route('admin.lead-statuses.index') }}" class="quick-action-card card p-3 text-center">
-                            <div class="card-body">
-                                <i data-feather="tag" class="mb-2" style="width: 32px; height: 32px; color: #43e97b;"></i>
-                                <h6 class="mb-0">Lead Statuses</h6>
-                            </div>
-                        </a>
-                    </div>
+            </div>
+            <div class="chart-body">
+                <div class="chart-container">
+                    <canvas id="leadsOverTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Leads by Source (Doughnut Chart) -->
+    <div class="col-lg-4 mb-4">
+        <div class="card chart-card">
+            <div class="chart-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h4>
+                    <i data-feather="pie-chart" class="me-2"></i> Leads by Source
+                </h4>
+            </div>
+            <div class="chart-body">
+                <div class="chart-container">
+                    <canvas id="leadsBySourceChart"></canvas>
                 </div>
             </div>
         </div>
@@ -261,14 +292,16 @@
 <!-- Recent Leads & Status Distribution -->
 <div class="row">
     <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">
+        <div class="card chart-card">
+            <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; padding: 20px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-white">
                         <i data-feather="clock" class="me-2"></i> Recent Leads
                     </h4>
-                    <a href="{{ route('admin.leads.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="{{ route('admin.leads.index') }}" class="btn btn-sm btn-light">View All</a>
                 </div>
+            </div>
+            <div class="card-body" style="padding: 0;">
                 <div class="table-responsive recent-leads-table">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -333,21 +366,35 @@
         </div>
     </div>
     <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-4">
+        <div class="card chart-card">
+            <div class="card-header" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none; padding: 20px;">
+                <h4 class="mb-0 text-white">
                     <i data-feather="pie-chart" class="me-2"></i> Leads by Status
                 </h4>
+            </div>
+            <div class="card-body" style="padding: 25px;">
                 @if($leadsByStatus->count() > 0)
                 <div class="mb-3">
+                    @php
+                        $statusColors = [
+                            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                            'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                        ];
+                        $colorIndex = 0;
+                    @endphp
                     @foreach($leadsByStatus as $status)
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: #f8f9fa; transition: all 0.3s ease;">
                         <div class="d-flex align-items-center">
-                            <div class="me-2" style="width: 12px; height: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%;"></div>
-                            <span class="fw-medium">{{ $status['name'] }}</span>
+                            <div class="me-3" style="width: 16px; height: 16px; background: {{ $statusColors[$colorIndex % count($statusColors)] }}; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                            <span class="fw-medium" style="color: #2d3748;">{{ $status['name'] }}</span>
                         </div>
-                        <span class="badge bg-light text-dark">{{ $status['count'] }}</span>
+                        <span class="badge" style="background: {{ $statusColors[$colorIndex % count($statusColors)] }}; color: white; padding: 6px 12px; font-size: 0.875rem; font-weight: 600;">{{ $status['count'] }}</span>
                     </div>
+                    @php $colorIndex++; @endphp
                     @endforeach
                 </div>
                 @else
@@ -363,6 +410,8 @@
 @endsection
 
 @push('scripts')
+<!-- Chart.js -->
+<script src="{{ asset('assets/libs/chart.js/dist/Chart.min.js') }}"></script>
 <script>
 $(document).ready(function() {
     // Initialize feather icons with error handling
@@ -372,6 +421,196 @@ $(document).ready(function() {
         } catch(e) {
             console.warn('Feather icons error:', e);
         }
+    }
+
+    // Chart 1: Leads Over Time (Line Chart)
+    const leadsOverTimeCtx = document.getElementById('leadsOverTimeChart');
+    if (leadsOverTimeCtx) {
+        new Chart(leadsOverTimeCtx, {
+            type: 'line',
+            data: {
+                labels: @json($leadsOverTimeLabels),
+                datasets: [{
+                    label: 'Leads',
+                    data: @json($leadsOverTime),
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: 'rgb(102, 126, 234)',
+                    pointBorderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Leads: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            precision: 0,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 2: Leads by Source (Doughnut Chart)
+    const leadsBySourceCtx = document.getElementById('leadsBySourceChart');
+    if (leadsBySourceCtx) {
+        const sourceData = @json($leadsBySource);
+        const sourceLabels = sourceData.map(item => item.name);
+        const sourceCounts = sourceData.map(item => item.count);
+        
+        // Generate colors dynamically
+        const colors = [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(245, 87, 108, 0.8)',
+            'rgba(79, 172, 254, 0.8)',
+            'rgba(67, 233, 123, 0.8)',
+            'rgba(250, 112, 154, 0.8)',
+            'rgba(48, 207, 208, 0.8)',
+            'rgba(118, 75, 162, 0.8)',
+            'rgba(240, 147, 251, 0.8)',
+        ];
+        
+        const borderColors = [
+            'rgb(102, 126, 234)',
+            'rgb(245, 87, 108)',
+            'rgb(79, 172, 254)',
+            'rgb(67, 233, 123)',
+            'rgb(250, 112, 154)',
+            'rgb(48, 207, 208)',
+            'rgb(118, 75, 162)',
+            'rgb(240, 147, 251)',
+        ];
+
+        new Chart(leadsBySourceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: sourceLabels,
+                datasets: [{
+                    data: sourceCounts,
+                    backgroundColor: colors.slice(0, sourceLabels.length),
+                    borderColor: borderColors.slice(0, sourceLabels.length),
+                    borderWidth: 2,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 12,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: label + ': ' + value + ' (' + percentage + '%)',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].borderColor[i],
+                                            lineWidth: 2,
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
     }
 });
 </script>

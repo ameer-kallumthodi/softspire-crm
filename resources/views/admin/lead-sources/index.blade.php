@@ -47,7 +47,7 @@
                     <table class="table table-striped table-bordered" id="leadSourcesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL No</th>
                                 <th>Name</th>
                                 <th>Status</th>
                                 <th>Created</th>
@@ -113,10 +113,10 @@ function renderLeadSourcesTable(leadSources) {
     if (leadSources.length === 0) {
         html = '<tr><td colspan="5" class="text-center">No lead sources found</td></tr>';
     } else {
-        leadSources.forEach(function(leadSource) {
+        leadSources.forEach(function(leadSource, index) {
             html += `
                 <tr>
-                    <td>${leadSource.id}</td>
+                    <td>${index + 1}</td>
                     <td>${leadSource.name}</td>
                     <td>
                         <span class="badge bg-${leadSource.status == 'active' ? 'success' : 'danger'}">

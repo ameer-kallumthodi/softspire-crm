@@ -74,18 +74,45 @@ class QuotationController extends BaseController
         // Check if dompdf is available
         if (class_exists('\Barryvdh\DomPDF\Facade\Pdf')) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.quotations.pdf', compact('quotation'));
+            $pdf->setOption('isHtml5ParserEnabled', true);
+            $pdf->setOption('isRemoteEnabled', true);
+            $pdf->setOption('defaultFont', 'DejaVu Sans');
+            $pdf->setOption('isPhpEnabled', true);
+            $pdf->setOption('chroot', public_path());
             return $pdf->stream('quotation-' . $quotation->quotation_number . '.pdf');
         } elseif (class_exists('\Dompdf\Dompdf')) {
             $html = view('admin.quotations.pdf', compact('quotation'))->render();
             $dompdf = new \Dompdf\Dompdf();
-            $dompdf->loadHtml($html);
+            $dompdf->loadHtml($html, 'UTF-8');
             $dompdf->setPaper('A4', 'portrait');
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', true);
+            $dompdf->set_option('defaultFont', 'DejaVu Sans');
+            $dompdf->set_option('isPhpEnabled', true);
             $dompdf->render();
             return $dompdf->stream('quotation-' . $quotation->quotation_number . '.pdf');
         } else {
             // Fallback: return HTML view for printing
             return view('admin.quotations.pdf', compact('quotation'));
         }
+    }
+
+    public function accept(Quotation $quotation)
+    {
+        if ($quotation->is_accepted) {
+            if (request()->ajax()) {
+                return $this->jsonError('This quotation is already accepted.');
+            }
+            return redirect()->back()->with('error', 'This quotation is already accepted.');
+        }
+
+        $quotation->update(['is_accepted' => 1]);
+
+        if (request()->ajax()) {
+            return $this->jsonSuccess('Quotation accepted successfully', $quotation);
+        }
+
+        return redirect()->back()->with('success', 'Quotation accepted successfully.');
     }
 }
 

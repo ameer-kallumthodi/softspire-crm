@@ -64,6 +64,7 @@
                                 <th>Total Amount</th>
                                 <th>Duration</th>
                                 <th>Technologies</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -76,9 +77,23 @@
                                 <td>{{ $quotation->duration_months ?? 'N/A' }}</td>
                                 <td>{{ $quotation->technologies ?? 'N/A' }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-info view-pdf-btn" data-quotation-id="{{ $quotation->id }}" data-url="{{ route('admin.quotations.pdf', $quotation) }}">
-                                        <i data-feather="eye"></i> View PDF
-                                    </button>
+                                    @if($quotation->is_accepted)
+                                        <span class="badge bg-success">Accepted</span>
+                                    @else
+                                        <span class="badge bg-secondary">Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-info view-pdf-btn" data-quotation-id="{{ $quotation->id }}" data-url="{{ route('admin.quotations.pdf', $quotation) }}">
+                                            <i data-feather="eye"></i> View PDF
+                                        </button>
+                                        @if(!$quotation->is_accepted)
+                                        <button class="btn btn-sm btn-success accept-quotation-btn" data-quotation-id="{{ $quotation->id }}" data-url="{{ route('admin.quotations.accept', $quotation) }}">
+                                            <i data-feather="check"></i> Accept
+                                        </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -136,6 +151,69 @@ $(document).ready(function() {
         $('html, body').animate({
             scrollTop: $('#pdfViewerSection').offset().top - 100
         }, 500);
+    });
+    
+    // Handle Accept quotation button click
+    $(document).on('click', '.accept-quotation-btn', function(e) {
+        e.preventDefault();
+        const button = $(this);
+        const quotationId = button.data('quotation-id');
+        const acceptUrl = button.data('url');
+        
+        // Show confirmation modal
+        $('#confirmModalTitle').text('Accept Quotation');
+        $('#confirmModalBody').html('<p>Are you sure you want to accept this quotation?</p><p class="text-muted small">This action will mark the quotation as accepted.</p>');
+        
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+        
+        // Remove previous event listeners
+        $('#confirmModalBtn').off('click');
+        
+        // Handle confirm button click
+        $('#confirmModalBtn').on('click', function() {
+            modal.hide();
+            
+            // Disable button to prevent double-click
+            button.prop('disabled', true);
+            const originalHtml = button.html();
+            button.html('<i data-feather="loader"></i> Processing...');
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+            
+            // Send AJAX request
+            $.ajax({
+                url: acceptUrl,
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast(response.message || 'Quotation accepted successfully', 'success');
+                        // Reload the page to update the status
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(response.message || 'Failed to accept quotation', 'error');
+                        button.prop('disabled', false).html(originalHtml);
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    const message = xhr.responseJSON?.message || 'An error occurred while accepting the quotation';
+                    showToast(message, 'error');
+                    button.prop('disabled', false).html(originalHtml);
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                }
+            });
+        });
     });
 });
 

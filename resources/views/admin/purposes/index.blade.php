@@ -47,7 +47,7 @@
                     <table class="table table-striped table-bordered" id="purposesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL No</th>
                                 <th>Name</th>
                                 <th>Status</th>
                                 <th>Created</th>
@@ -113,10 +113,10 @@ function renderPurposesTable(purposes) {
     if (purposes.length === 0) {
         html = '<tr><td colspan="5" class="text-center">No purposes found</td></tr>';
     } else {
-        purposes.forEach(function(purpose) {
+        purposes.forEach(function(purpose, index) {
             html += `
                 <tr>
-                    <td>${purpose.id}</td>
+                    <td>${index + 1}</td>
                     <td>${purpose.name}</td>
                     <td>
                         <span class="badge bg-${purpose.status == 'active' ? 'success' : 'danger'}">
