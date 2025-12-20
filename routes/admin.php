@@ -16,6 +16,11 @@ use App\Http\Controllers\Admin\TelecallerController;
 use App\Http\Controllers\Admin\ManagerController;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Redirect /admin/ to /admin/dashboard
+    Route::get('/', function () {
+        return redirect()->route('admin.dashboard');
+    });
+    
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
