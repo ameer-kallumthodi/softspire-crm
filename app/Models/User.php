@@ -20,6 +20,9 @@ class User extends Authenticatable
         'phone',
         'joining_date',
         'dob',
+        'employee_id',
+        'department_id',
+        'address',
     ];
 
     protected $hidden = [
@@ -43,5 +46,13 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(UserRole::class, 'role_id');
+    }
+
+    /**
+     * Get the user's department
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }

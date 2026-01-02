@@ -82,11 +82,33 @@
         </div>
         <div class="col-md-6">
             <div class="form-group mb-3">
+                <label>User Type</label>
+                <select name="user_type" id="user_type" class="form-control">
+                    <option value="telecaller">Telecaller</option>
+                    <option value="digital_marketing">Digital Marketing</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3" id="telecaller_selection">
                 <label>Telecaller</label>
-                <select name="telecaller_id" class="form-control">
+                <select name="telecaller_id" id="telecaller_id" class="form-control">
                     <option value="">Unassigned</option>
                     @foreach($telecallers as $telecaller)
                     <option value="{{ $telecaller->id }}">{{ $telecaller->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group mb-3" id="digital_marketing_selection" style="display: none;">
+                <label>Digital Marketing Employee</label>
+                <select name="user_id" id="user_id" class="form-control">
+                    <option value="">Unassigned</option>
+                    @foreach($digitalMarketingEmployees as $employee)
+                    <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->employee_id }})</option>
                     @endforeach
                 </select>
             </div>
@@ -118,6 +140,25 @@
 
 <script>
 $(document).ready(function() {
+    // Handle user type change
+    $('#user_type').on('change', function() {
+        const userType = $(this).val();
+        if (userType === 'telecaller') {
+            $('#telecaller_selection').show();
+            $('#digital_marketing_selection').hide();
+            $('#telecaller_id').prop('required', false);
+            $('#user_id').prop('required', false);
+        } else if (userType === 'digital_marketing') {
+            $('#telecaller_selection').hide();
+            $('#digital_marketing_selection').show();
+            $('#telecaller_id').prop('required', false);
+            $('#user_id').prop('required', false);
+        }
+    });
+    
+    // Trigger on page load
+    $('#user_type').trigger('change');
+    
     $('#leadForm').on('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);

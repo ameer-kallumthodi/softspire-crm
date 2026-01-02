@@ -13,7 +13,7 @@
         }
         @page {
             margin: 0;
-            size: A4;
+            size: A4 portrait;
         }
         @media print {
             body {
@@ -36,17 +36,16 @@
         }
         .page {
             width: 210mm;
-            min-height: 297mm;
             margin: 0 auto;
             background: #fff;
             position: relative;
-            overflow: hidden;
+            page-break-after: avoid;
         }
         /* Header with diagonal design */
         .header {
             position: relative;
-            height: 130px;
-            margin-bottom: 25px;
+            height: 140px;
+            margin-bottom: 30px;
             overflow: visible;
         }
         .header-red {
@@ -84,14 +83,16 @@
             z-index: 4;
         }
         .company-logo-box {
-            width: 60px;
-            height: 60px;
-            background: transparent;
-            border-radius: 2px;
+            width: 160px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            padding: 8px 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         .company-logo-box img {
             max-width: 100%;
@@ -116,30 +117,39 @@
             padding: 0 30px;
         }
         .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            gap: 20px;
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
         }
         .info-box {
-            width: 48%;
-            flex: 1;
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            padding: 0 10px;
+        }
+        .info-box:first-child {
+            text-align: left;
+            padding-left: 0;
+        }
+        .info-box:last-child {
+            text-align: right;
+            padding-right: 0;
         }
         .info-label {
             font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 8px;
+            font-size: 12px;
+            margin-bottom: 10px;
             color: #212529;
         }
         .customer-name {
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 8px;
         }
         .customer-details {
-            font-size: 11px;
+            font-size: 12px;
             color: #495057;
-            line-height: 1.6;
+            line-height: 1.8;
         }
         .quotation-details {
             text-align: right;
@@ -147,29 +157,31 @@
         .quotation-number-box {
             background: #212529;
             color: #fff;
-            padding: 12px 18px;
+            padding: 12px 24px;
             display: inline-block;
             font-weight: bold;
             font-size: 13px;
             margin-bottom: 12px;
             border-radius: 2px;
+            white-space: nowrap;
         }
         .detail-row {
-            font-size: 11px;
-            margin-bottom: 5px;
+            font-size: 12px;
+            margin-bottom: 6px;
             color: #495057;
+            text-align: right;
         }
         /* Items table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .items-table thead tr th {
-            padding: 14px 12px;
+            padding: 16px 14px;
             text-align: left;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             color: #fff;
         }
         .items-table thead tr th:nth-child(1) {
@@ -182,19 +194,19 @@
             width: 30%;
         }
         .items-table tbody tr td {
-            padding: 14px 12px;
+            padding: 16px 14px;
             border-bottom: 1px solid #e9ecef;
-            font-size: 11px;
+            font-size: 12px;
             vertical-align: top;
         }
         .items-table tbody tr:last-child td {
             border-bottom: none;
         }
         .item-description {
-            font-size: 10px;
+            font-size: 11px;
             color: #6c757d;
-            margin-top: 5px;
-            line-height: 1.4;
+            margin-top: 6px;
+            line-height: 1.5;
         }
         .items-table tbody tr td:first-child {
             font-weight: 500;
@@ -204,52 +216,66 @@
         }
         /* Payment and totals section */
         .bottom-section {
-            display: flex;
-            justify-content: space-between;
+            display: table;
+            width: 100%;
             margin-bottom: 30px;
         }
         .payment-section, .totals-section {
-            width: 48%;
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            padding: 0 10px;
+        }
+        .payment-section {
+            padding-left: 0;
+        }
+        .totals-section {
+            padding-right: 0;
+            text-align: right;
         }
         .section-title {
             font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
+            font-size: 13px;
+            margin-bottom: 12px;
             color: #212529;
         }
-        .payment-details,         .total-row {
+        .payment-details {
             font-size: 11px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            color: #495057;
+            line-height: 1.8;
+        }
+        .total-row {
+            font-size: 12px;
+            margin-bottom: 10px;
             color: #495057;
             text-align: right;
         }
         .grand-total-box {
             background: #dc3545;
             color: #fff;
-            padding: 18px 20px;
+            padding: 18px 24px;
             margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+            text-align: right;
             border-radius: 2px;
         }
         .grand-total-label {
             font-weight: bold;
             font-size: 13px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         .grand-total-amount {
             font-weight: bold;
-            font-size: 22px;
+            font-size: 24px;
         }
         /* Terms and conditions */
         .terms-section {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .terms-title {
             font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
+            font-size: 13px;
+            margin-bottom: 12px;
             color: #212529;
         }
         .terms-content {
@@ -259,37 +285,39 @@
         }
         .terms-content ul {
             margin-left: 20px;
-            margin-top: 5px;
+            margin-top: 8px;
         }
         .terms-content li {
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         /* Footer */
         .footer {
             position: relative;
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 20px 30px;
             border-top: 1px solid #e9ecef;
-            min-height: 100px;
+            page-break-inside: avoid;
         }
         .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: table;
+            width: 100%;
         }
         .contact-info {
-            display: flex;
-            gap: 12px;
+            display: table-cell;
+            width: 60%;
             font-size: 10px;
             color: #6c757d;
-            align-items: center;
-            flex-wrap: wrap;
+            vertical-align: middle;
         }
         .contact-info span {
-            white-space: nowrap;
+            display: inline-block;
+            margin-right: 18px;
         }
         .signature-section {
+            display: table-cell;
+            width: 40%;
             text-align: right;
+            vertical-align: middle;
         }
         .signature-name {
             font-weight: bold;
@@ -304,7 +332,7 @@
             font-weight: bold;
             font-size: 13px;
             margin-bottom: 15px;
-            margin-top: 10px;
+            margin-top: 12px;
             color: #212529;
         }
         /* Bottom diagonal design */
@@ -344,7 +372,11 @@
                 <div class="company-info">
                     <div class="company-logo-box">
                         @php
-                            $logoPath = public_path('assets/images/logo.png');
+                            // Try old logo first, then fallback to current logo
+                            $logoPath = public_path('assets/images/logo-old-backup.png');
+                            if (!file_exists($logoPath)) {
+                                $logoPath = public_path('assets/images/logo.png');
+                            }
                             if (file_exists($logoPath)) {
                                 $logoData = base64_encode(file_get_contents($logoPath));
                                 $logoMime = mime_content_type($logoPath);
@@ -354,9 +386,9 @@
                             }
                         @endphp
                         @if($logoBase64)
-                            <img src="{{ $logoBase64 }}" alt="SoftSpire Logo" style="max-width: 100%; max-height: 100%;">
+                            <img src="{{ $logoBase64 }}" alt="Softspire Logo" style="max-width: 100%; max-height: 100%;">
                         @else
-                            <span style="font-size: 32px; font-weight: bold; color: #dc3545;">P</span>
+                            <span style="font-size: 24px; font-weight: bold; color: #dc3545;">Softspire</span>
                         @endif
                     </div>
                 </div>

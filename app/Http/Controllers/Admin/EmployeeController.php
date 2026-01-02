@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Models\Department;
 use App\Helpers\CountriesHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class TelecallerController extends BaseController
+class EmployeeController extends BaseController
 {
     /**
      * Generate unique employee ID (ST0001, ST0002, etc.)
@@ -36,7 +37,7 @@ class TelecallerController extends BaseController
     }
 
     /**
-     * Display listing of telecallers
+     * Display listing of employees
      */
     public function index(Request $request)
     {
@@ -44,7 +45,7 @@ class TelecallerController extends BaseController
             return $this->getData($request);
         }
 
-        return view('admin.telecallers.index');
+        return view('admin.employees.index');
     }
 
     private function getData(Request $request)
@@ -56,16 +57,17 @@ class TelecallerController extends BaseController
             $search = $request->search;
             $whereOR['name'] = ['like', "%{$search}%"];
             $whereOR['email'] = ['like', "%{$search}%"];
+            $whereOR['employee_id'] = ['like', "%{$search}%"];
             $where['OR'] = $whereOR;
         }
 
-        // Get telecaller role
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole) {
-            $where['role_id'] = $telecallerRole->id;
+        // Get employee role
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole) {
+            $where['role_id'] = $employeeRole->id;
         } else {
             // If role doesn't exist, return empty
-            return $this->jsonSuccess('Telecallers retrieved', []);
+            return $this->jsonSuccess('Employees retrieved', []);
         }
 
         $query = User::query();
@@ -100,13 +102,13 @@ class TelecallerController extends BaseController
             }
         }
         
-        $telecallers = $query->with('role')->orderBy('id', 'desc')->get();
+        $employees = $query->with(['role', 'department'])->orderBy('id', 'desc')->get();
 
-        return $this->jsonSuccess('Telecallers retrieved', $telecallers);
+        return $this->jsonSuccess('Employees retrieved', $employees);
     }
 
     /**
-     * Store a newly created telecaller
+     * Store a newly created employee
      */
     public function store(Request $request)
     {
@@ -117,35 +119,37 @@ class TelecallerController extends BaseController
             'status' => 'required|string|in:active,inactive',
             'country_code' => 'required|string|max:10',
             'phone' => 'required|string|max:20',
+            'department_id' => 'required|exists:departments,id',
             'joining_date' => 'required|date',
-            'dob' => 'required|date|before:' . now()->format('Y-m-d'),
+            'dob' => 'required|date|before:' . now()->subYears(15)->format('Y-m-d'),
+            'address' => 'nullable|string|max:500',
         ]);
 
-        // Get telecaller role
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if (!$telecallerRole) {
+        // Get employee role
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if (!$employeeRole) {
             if ($request->ajax()) {
-                return $this->jsonError('Telecaller role not found', 404);
+                return $this->jsonError('Employee role not found', 404);
             }
-            return redirect()->back()->with('error', 'Telecaller role not found.');
+            return redirect()->back()->with('error', 'Employee role not found.');
         }
 
         $data = $request->all();
         $data['password'] = Hash::make($request->password);
-        $data['role_id'] = $telecallerRole->id;
+        $data['role_id'] = $employeeRole->id;
         $data['employee_id'] = $this->generateEmployeeId();
 
         $user = User::create($data);
 
         if ($request->ajax()) {
-            return $this->jsonSuccess('Telecaller created successfully', $user);
+            return $this->jsonSuccess('Employee created successfully', $user);
         }
 
-        return redirect()->route('admin.telecallers.index')->with('success', 'Telecaller created successfully.');
+        return redirect()->route('admin.employees.index')->with('success', 'Employee created successfully.');
     }
 
     /**
-     * Update the specified telecaller
+     * Update the specified employee
      */
     public function update(Request $request, $id)
     {
@@ -155,81 +159,84 @@ class TelecallerController extends BaseController
             'status' => 'required|string|in:active,inactive',
             'country_code' => 'required|string|max:10',
             'phone' => 'required|string|max:20',
+            'department_id' => 'required|exists:departments,id',
             'joining_date' => 'required|date',
-            'dob' => 'required|date|before:' . now()->format('Y-m-d'),
+            'dob' => 'required|date|before:' . now()->subYears(15)->format('Y-m-d'),
+            'address' => 'nullable|string|max:500',
         ]);
 
         $user = User::findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
             if ($request->ajax()) {
-                return $this->jsonError('User is not a telecaller', 403);
+                return $this->jsonError('User is not an employee', 403);
             }
-            return redirect()->back()->with('error', 'User is not a telecaller.');
+            return redirect()->back()->with('error', 'User is not an employee.');
         }
         
         $data = $request->all();
         
-        // Keep the existing role_id (don't allow changing role)
+        // Keep the existing role_id and employee_id (don't allow changing)
         $data['role_id'] = $user->role_id;
+        $data['employee_id'] = $user->employee_id;
 
         $user->update($data);
 
         if ($request->ajax()) {
-            return $this->jsonSuccess('Telecaller updated successfully', $user);
+            return $this->jsonSuccess('Employee updated successfully', $user);
         }
 
-        return redirect()->route('admin.telecallers.index')->with('success', 'Telecaller updated successfully.');
+        return redirect()->route('admin.employees.index')->with('success', 'Employee updated successfully.');
     }
 
     /**
-     * Remove the specified telecaller
+     * Remove the specified employee
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
             if (request()->ajax()) {
-                return $this->jsonError('User is not a telecaller', 403);
+                return $this->jsonError('User is not an employee', 403);
             }
-            return redirect()->back()->with('error', 'User is not a telecaller.');
+            return redirect()->back()->with('error', 'User is not an employee.');
         }
         
         if ($user->id == auth()->id()) {
             if (request()->ajax()) {
                 return $this->jsonError('You cannot delete your own account', 400);
             }
-            return redirect()->route('admin.telecallers.index')->with('error', 'You cannot delete your own account.');
+            return redirect()->route('admin.employees.index')->with('error', 'You cannot delete your own account.');
         }
 
         $user->delete();
 
         if (request()->ajax()) {
-            return $this->jsonSuccess('Telecaller deleted successfully');
+            return $this->jsonSuccess('Employee deleted successfully');
         }
 
-        return redirect()->route('admin.telecallers.index')->with('success', 'Telecaller deleted successfully.');
+        return redirect()->route('admin.employees.index')->with('success', 'Employee deleted successfully.');
     }
 
     /**
-     * Get telecaller data for edit
+     * Get employee data for edit
      */
     public function show($id)
     {
-        $user = User::with('role')->findOrFail($id);
+        $user = User::with(['role', 'department'])->findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
-            return $this->jsonError('User is not a telecaller', 403);
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
+            return $this->jsonError('User is not an employee', 403);
         }
         
-        return $this->jsonSuccess('Telecaller retrieved', $user);
+        return $this->jsonSuccess('Employee retrieved', $user);
     }
 
     /**
@@ -238,7 +245,8 @@ class TelecallerController extends BaseController
     public function ajaxAdd(Request $request)
     {
         $countryCodes = CountriesHelper::getCountryCode();
-        return view('admin.telecallers.ajax_add', compact('countryCodes'));
+        $departments = Department::where('status', 'active')->orderBy('name')->get();
+        return view('admin.employees.ajax_add', compact('countryCodes', 'departments'));
     }
 
     /**
@@ -246,19 +254,20 @@ class TelecallerController extends BaseController
      */
     public function ajaxEdit($id)
     {
-        $user = User::with('role')->findOrFail($id);
+        $user = User::with(['role', 'department'])->findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
             if (request()->ajax()) {
-                return $this->jsonError('User is not a telecaller', 403);
+                return $this->jsonError('User is not an employee', 403);
             }
-            return redirect()->route('admin.telecallers.index')->with('error', 'User is not a telecaller.');
+            return redirect()->route('admin.employees.index')->with('error', 'User is not an employee.');
         }
         
         $countryCodes = CountriesHelper::getCountryCode();
-        return view('admin.telecallers.ajax_edit', compact('user', 'countryCodes'));
+        $departments = Department::where('status', 'active')->orderBy('name')->get();
+        return view('admin.employees.ajax_edit', compact('user', 'countryCodes', 'departments'));
     }
 
     /**
@@ -268,20 +277,20 @@ class TelecallerController extends BaseController
     {
         $user = User::findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
             if (request()->ajax()) {
-                return $this->jsonError('User is not a telecaller', 403);
+                return $this->jsonError('User is not an employee', 403);
             }
-            return redirect()->route('admin.telecallers.index')->with('error', 'User is not a telecaller.');
+            return redirect()->route('admin.employees.index')->with('error', 'User is not an employee.');
         }
         
-        return view('admin.telecallers.reset_password', compact('user'));
+        return view('admin.employees.reset_password', compact('user'));
     }
 
     /**
-     * Update telecaller password
+     * Update employee password
      */
     public function updatePassword(Request $request, $id)
     {
@@ -291,13 +300,13 @@ class TelecallerController extends BaseController
 
         $user = User::findOrFail($id);
         
-        // Verify user is a telecaller
-        $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
-        if ($telecallerRole && $user->role_id != $telecallerRole->id) {
+        // Verify user is an employee
+        $employeeRole = UserRole::get(['slug' => 'employee'], null, null, 1, null)->first();
+        if ($employeeRole && $user->role_id != $employeeRole->id) {
             if ($request->ajax()) {
-                return $this->jsonError('User is not a telecaller', 403);
+                return $this->jsonError('User is not an employee', 403);
             }
-            return redirect()->back()->with('error', 'User is not a telecaller.');
+            return redirect()->back()->with('error', 'User is not an employee.');
         }
         
         $user->password = Hash::make($request->password);
@@ -307,6 +316,6 @@ class TelecallerController extends BaseController
             return $this->jsonSuccess('Password reset successfully');
         }
 
-        return redirect()->route('admin.telecallers.index')->with('success', 'Password reset successfully.');
+        return redirect()->route('admin.employees.index')->with('success', 'Password reset successfully.');
     }
 }

@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\QuotationController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\TelecallerController;
 use App\Http\Controllers\Admin\ManagerController;
+use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\EmployeeController;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Redirect /admin/ to /admin/dashboard
@@ -44,6 +46,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/countries/{country}/ajax/edit', [CountryController::class, 'ajaxEdit'])->name('countries.ajax-edit');
     Route::post('/countries/{country}/toggle-status', [CountryController::class, 'toggleStatus'])->name('countries.toggle-status');
     Route::resource('countries', CountryController::class);
+    
+    // Departments - AJAX routes must come before resource routes
+    Route::get('/departments/ajax/add', [DepartmentController::class, 'ajaxAdd'])->name('departments.ajax-add');
+    Route::get('/departments/{department}/ajax/edit', [DepartmentController::class, 'ajaxEdit'])->name('departments.ajax-edit');
+    Route::post('/departments/{department}/toggle-status', [DepartmentController::class, 'toggleStatus'])->name('departments.toggle-status');
+    Route::resource('departments', DepartmentController::class);
     
     // Purposes - AJAX routes must come before resource routes
     Route::get('/purposes/ajax/add', [PurposeController::class, 'ajaxAdd'])->name('purposes.ajax-add');
@@ -80,6 +88,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/managers/{id}/reset-password', [ManagerController::class, 'updatePassword'])->name('managers.update-password');
     Route::get('/managers/{id}', [ManagerController::class, 'show'])->name('managers.show');
     Route::resource('managers', ManagerController::class)->parameters(['managers' => 'id']);
+    
+    // Employees - AJAX routes must come before resource routes
+    Route::get('/employees/ajax/add', [EmployeeController::class, 'ajaxAdd'])->name('employees.ajax-add');
+    Route::get('/employees/{id}/ajax/edit', [EmployeeController::class, 'ajaxEdit'])->name('employees.ajax-edit');
+    Route::get('/employees/{id}/reset-password', [EmployeeController::class, 'resetPassword'])->name('employees.reset-password');
+    Route::put('/employees/{id}/reset-password', [EmployeeController::class, 'updatePassword'])->name('employees.update-password');
+    Route::get('/employees/{id}', [EmployeeController::class, 'show'])->name('employees.show');
+    Route::resource('employees', EmployeeController::class)->parameters(['employees' => 'id']);
     
     // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');

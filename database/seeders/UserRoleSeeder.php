@@ -36,6 +36,13 @@ class UserRoleSeeder extends Seeder
                 'description' => 'Manage leads and users',
                 'permissions' => ['leads.*', 'users.view', 'users.edit'],
             ],
+            [
+                'id' => 4,
+                'name' => 'Employee',
+                'slug' => 'employee',
+                'description' => 'Employee access',
+                'permissions' => ['leads.view'],
+            ],
         ];
 
         foreach ($roles as $roleData) {

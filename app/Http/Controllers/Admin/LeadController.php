@@ -14,6 +14,7 @@ use App\Models\LeadSource;
 use App\Models\User;
 use App\Models\UserRole;
 use App\Models\Customer;
+use App\Models\Department;
 use App\Helpers\CountriesHelper;
 use App\Helpers\PhoneNumberHelper;
 use App\Helpers\AuthHelper;
@@ -67,8 +68,15 @@ class LeadController extends BaseController
         // Only show non-converted leads
         $where['is_converted'] = 0;
 
+        // If user is Digital Marketing employee, only show leads assigned to them
+        $user = Auth::user();
+        if ($user && $user->role && $user->role->slug === 'employee' && $user->department && $user->department->name === 'Digital Marketing') {
+            $where['user_type'] = 'digital_marketing';
+            $where['user_id'] = $user->id;
+        }
+
         $leads = Lead::buildQuery($where, null, ['id', 'desc'], null)
-            ->with(['country', 'purpose', 'leadStatus', 'leadSource', 'telecaller'])
+            ->with(['country', 'purpose', 'leadStatus', 'leadSource', 'telecaller', 'user'])
             ->get();
 
         return $this->jsonSuccess('Leads retrieved', $leads);
@@ -94,9 +102,16 @@ class LeadController extends BaseController
         $leadSources = LeadSource::get(['status' => 'active'], null, null, null, null);
         $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
         $telecallers = $telecallerRole ? User::where('role_id', $telecallerRole->id)->get() : collect([]);
+        
+        // Get Digital Marketing employees
+        $digitalMarketingDept = Department::where('name', 'Digital Marketing')->first();
+        $digitalMarketingEmployees = $digitalMarketingDept ? User::where('department_id', $digitalMarketingDept->id)
+            ->where('status', 'active')
+            ->get() : collect([]);
+        
         $countryCodes = CountriesHelper::getCountryCode();
 
-        return view('admin.leads.ajax_add', compact('countries', 'purposes', 'leadStatuses', 'leadSources', 'telecallers', 'countryCodes'));
+        return view('admin.leads.ajax_add', compact('countries', 'purposes', 'leadStatuses', 'leadSources', 'telecallers', 'digitalMarketingEmployees', 'countryCodes'));
     }
 
     public function ajaxEdit(Lead $lead)
@@ -114,9 +129,16 @@ class LeadController extends BaseController
         $leadSources = LeadSource::get(['status' => 'active'], null, null, null, null);
         $telecallerRole = UserRole::get(['slug' => 'telecaller'], null, null, 1, null)->first();
         $telecallers = $telecallerRole ? User::where('role_id', $telecallerRole->id)->get() : collect([]);
+        
+        // Get Digital Marketing employees
+        $digitalMarketingDept = Department::where('name', 'Digital Marketing')->first();
+        $digitalMarketingEmployees = $digitalMarketingDept ? User::where('department_id', $digitalMarketingDept->id)
+            ->where('status', 'active')
+            ->get() : collect([]);
+        
         $countryCodes = CountriesHelper::getCountryCode();
 
-        return view('admin.leads.ajax_edit', compact('lead', 'countries', 'purposes', 'leadStatuses', 'leadSources', 'telecallers', 'countryCodes'));
+        return view('admin.leads.ajax_edit', compact('lead', 'countries', 'purposes', 'leadStatuses', 'leadSources', 'telecallers', 'digitalMarketingEmployees', 'countryCodes'));
     }
 
     public function ajaxConvert(Lead $lead)
@@ -131,6 +153,22 @@ class LeadController extends BaseController
         $data['first_created_at'] = now();
         $data['is_meta'] = $request->has('is_meta') ? 1 : 0;
         $data['is_converted'] = $request->has('is_converted') ? 1 : 0;
+        
+        // Handle user_type and user_id
+        if ($request->has('user_type')) {
+            $data['user_type'] = $request->input('user_type');
+            if ($request->input('user_type') === 'telecaller') {
+                $data['user_id'] = $request->input('telecaller_id');
+                $data['telecaller_id'] = $request->input('telecaller_id');
+            } elseif ($request->input('user_type') === 'digital_marketing') {
+                $data['user_id'] = $request->input('user_id');
+                $data['telecaller_id'] = null;
+            }
+        } else {
+            // Default to telecaller for backward compatibility
+            $data['user_type'] = 'telecaller';
+            $data['user_id'] = $request->input('telecaller_id');
+        }
         
         // Explicitly ensure lead_status_id and remarks are included (even if empty)
         $data['lead_status_id'] = $request->input('lead_status_id');
@@ -184,6 +222,22 @@ class LeadController extends BaseController
         $data = $request->validated();
         $data['is_meta'] = $request->has('is_meta') ? 1 : 0;
         $data['is_converted'] = $request->has('is_converted') ? 1 : 0;
+        
+        // Handle user_type and user_id
+        if ($request->has('user_type')) {
+            $data['user_type'] = $request->input('user_type');
+            if ($request->input('user_type') === 'telecaller') {
+                $data['user_id'] = $request->input('telecaller_id');
+                $data['telecaller_id'] = $request->input('telecaller_id');
+            } elseif ($request->input('user_type') === 'digital_marketing') {
+                $data['user_id'] = $request->input('user_id');
+                $data['telecaller_id'] = null;
+            }
+        } else {
+            // Default to telecaller for backward compatibility
+            $data['user_type'] = 'telecaller';
+            $data['user_id'] = $request->input('telecaller_id');
+        }
         
         // Explicitly ensure lead_status_id and remarks are included (even if empty)
         $data['lead_status_id'] = $request->input('lead_status_id');

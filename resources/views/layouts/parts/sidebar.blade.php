@@ -68,6 +68,12 @@
                         <span class="hide-menu">Lead Sources</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link sidebar-link" href="{{ route('admin.departments.index') }}" aria-expanded="false">
+                        <i data-feather="briefcase" class="feather-icon"></i>
+                        <span class="hide-menu">Departments</span>
+                    </a>
+                </li>
                 <li class="list-divider"></li>
                 <li class="nav-small-cap"><span class="hide-menu">User Management</span></li>
                 <li class="sidebar-item">
@@ -80,6 +86,12 @@
                     <a class="sidebar-link sidebar-link" href="{{ route('admin.managers.index') }}" aria-expanded="false">
                         <i data-feather="user-check" class="feather-icon"></i>
                         <span class="hide-menu">Managers</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link sidebar-link" href="{{ route('admin.employees.index') }}" aria-expanded="false">
+                        <i data-feather="users" class="feather-icon"></i>
+                        <span class="hide-menu">Employees</span>
                     </a>
                 </li>
                 <li class="list-divider"></li>

@@ -43,6 +43,11 @@ class Lead extends BaseModel
         return $this->belongsTo(User::class, 'telecaller_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function activities()
     {
         return $this->hasMany(LeadActivity::class);

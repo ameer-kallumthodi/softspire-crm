@@ -79,7 +79,7 @@ class QuotationController extends BaseController
             $pdf->setOption('defaultFont', 'DejaVu Sans');
             $pdf->setOption('isPhpEnabled', true);
             $pdf->setOption('chroot', public_path());
-            return $pdf->stream('quotation-' . $quotation->quotation_number . '.pdf');
+            return $pdf->stream($quotation->quotation_number . '.pdf');
         } elseif (class_exists('\Dompdf\Dompdf')) {
             $html = view('admin.quotations.pdf', compact('quotation'))->render();
             $dompdf = new \Dompdf\Dompdf();
@@ -90,7 +90,7 @@ class QuotationController extends BaseController
             $dompdf->set_option('defaultFont', 'DejaVu Sans');
             $dompdf->set_option('isPhpEnabled', true);
             $dompdf->render();
-            return $dompdf->stream('quotation-' . $quotation->quotation_number . '.pdf');
+            return $dompdf->stream($quotation->quotation_number . '.pdf');
         } else {
             // Fallback: return HTML view for printing
             return view('admin.quotations.pdf', compact('quotation'));

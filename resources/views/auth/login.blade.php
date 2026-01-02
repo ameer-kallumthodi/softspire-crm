@@ -22,9 +22,16 @@
         <div class="auth-wrapper d-flex no-block justify-content-center align-items-center position-relative"
             style="background:url({{ asset('assets/images/big/auth-bg.jpg') }}) no-repeat center center;">
             <div class="auth-box row">
-                <div class="col-lg-7 col-md-5 modal-bg-img" style="background-image: url({{ asset('assets/images/big/3.jpg') }});">
+                <div class="col-lg-6 col-md-4 modal-bg-img position-relative" style="position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url({{ asset('assets/images/big/login-banner.png') }}); background-size: cover; background-position: center;"></div>
+                    <div class="position-relative d-flex align-items-center justify-content-center h-100" style="z-index: 1; padding: 2rem;">
+                        <div class="text-center text-white">
+                            <!-- <h1 class="mb-3" style="font-size: 2.5rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); color:#ee2b4c;">Welcome Back</h1>
+                            <p class="mb-0" style="font-size: 1.2rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); color:#ee2b4c;">Sign in to access your CRM dashboard</p> -->
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-5 col-md-7 bg-white">
+                <div class="col-lg-6 col-md-8 bg-white">
                     <div class="p-3">
                         <div class="text-center">
                             <img src="{{ asset('assets/images/logo.png') }}" alt="Softspire CRM" style="max-height: 80px;">
