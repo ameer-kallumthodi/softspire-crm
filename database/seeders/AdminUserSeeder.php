@@ -20,8 +20,8 @@ class AdminUserSeeder extends Seeder
         if ($adminRole) {
             User::create([
                 'name' => 'Administrator',
-                'email' => 'admin@crm.com',
-                'password' => Hash::make('password'),
+                'email' => 'softspire@admin.com',
+                'password' => Hash::make('Softspire@0410'),
                 'role_id' => $adminRole->id,
                 'status' => 'active',
             ]);
